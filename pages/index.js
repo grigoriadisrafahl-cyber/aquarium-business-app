@@ -1808,8 +1808,7 @@ const updatePropagationProject = (id, field, value) => {
           </tbody>
         </table>
       </div>
-
-      <div className="grid md:grid-cols-4 gap-4 mt-6">
+            <div className="grid md:grid-cols-4 gap-4 mt-6">
         <div className="p-4 bg-green-100 rounded-lg">
           <div className="text-sm font-semibold text-green-800">Total Plants</div>
           <div className="text-2xl font-bold text-green-600">
@@ -1836,9 +1835,326 @@ const updatePropagationProject = (id, field, value) => {
         </div>
       </div>
     </div>
-  </div>
-)}
+<div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold flex items-center gap-2">
+          <Calendar className="text-blue-600" />
+          Plant Care Schedule
+        </h3>
+        <button
+          onClick={addPlantCareTask}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          + Add Care Task
+        </button>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        {plantCareSchedule.map((task) => {
+          const plant = plants.find(p => p.id === task.plantId);
+          const isOverdue = new Date(task.nextDue) < new Date();
+          
+          return (
+            <div key={task.id} className={`p-4 border rounded-lg ${
+              task.completed ? 'bg-green-50 border-green-200' : 
+              isOverdue ? 'bg-red-50 border-red-200' : 
+              'bg-white border-gray-200'
+            }`}>
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h4 className="font-medium">{task.taskType.charAt(0).toUpperCase() + task.taskType.slice(1)}</h4>
+                  <div className="text-sm text-gray-600">{plant?.name || 'Unknown Plant'}</div>
+                </div>
+                <button
+                  onClick={() => updatePlantCareTask(task.id, 'completed', !task.completed)}
+                  className={`px-3 py-1 rounded text-xs ${
+                    task.completed 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {task.completed ? '✓ Done' : 'Mark Done'}
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <label className="text-gray-600">Plant:</label>
+                  <select
+                    value={task.plantId}
+                    onChange={(e) => updatePlantCareTask(task.id, 'plantId', parseInt(e.target.value))}
+                    className="w-full p-1 border rounded text-xs"
+                  >
+                    {plants.map(plant => (
+                      <option key={plant.id} value={plant.id}>{plant.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-600">Task:</label>
+                  <select
+                    value={task.taskType}
+                    onChange={(e) => updatePlantCareTask(task.id, 'taskType', e.target.value)}
+                    className="w-full p-1 border rounded text-xs"
+                  >
+                    <option value="fertilize">Fertilize</option>
+                    <option value="trim">Trim</option>
+                    <option value="water_change">Water Change</option>
+                    <option value="inspect">Inspect</option>
+                    <option value="relocate">Relocate</option>
+                    <option value="propagate">Propagate</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-600">Frequency:</label>
+                  <select
+                    value={task.frequency}
+                    onChange={(e) => updatePlantCareTask(task.id, 'frequency', e.target.value)}
+                    className="w-full p-1 border rounded text-xs"
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="biweekly">Bi-weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-600">Next Due:</label>
+                  <input
+                    type="date"
+                    value={task.nextDue}
+                    onChange={(e) => updatePlantCareTask(task.id, 'nextDue', e.target.value)}
+                    className="w-full p-1 border rounded text-xs"
+                  />
+                </div>
+              </div>
+              
+              {isOverdue && !task.completed && (
+                <div className="mt-2 text-xs text-red-600 font-medium">
+                  ⚠️ Overdue by {Math.floor((new Date() - new Date(task.nextDue)) / (1000 * 60 * 60 * 24))} days
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
+<div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold flex items-center gap-2">
+          <Heart className="text-pink-600" />
+          Plant Propagation Projects
+        </h3>
+        <button
+          onClick={addPropagationProject}
+          className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+        >
+          + Start Propagation
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Parent Plant</th>
+              <th className="border p-2 text-left">Method</th>
+              <th className="border p-2 text-center">Started</th>
+              <th className="border p-2 text-center">Expected Ready</th>
+              <th className="border p-2 text-center">Expected Qty</th>
+              <th className="border p-2 text-center">Actual Qty</th>
+              <th className="border p-2 text-center">Status</th>
+              <th className="border p-2 text-left">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plantPropagation.map((project) => {
+              const parentPlant = plants.find(p => p.id === project.parentPlantId);
+              
+              return (
+                <tr key={project.id} className="hover:bg-gray-50">
+                  <td className="border p-2">
+                    <select
+                      value={project.parentPlantId}
+                      onChange={(e) => updatePropagationProject(project.id, 'parentPlantId', parseInt(e.target.value))}
+                      className="w-full p-1 border rounded"
+                    >
+                      {plants.map(plant => (
+                        <option key={plant.id} value={plant.id}>{plant.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="border p-2">
+                    <select
+                      value={project.method}
+                      onChange={(e) => updatePropagationProject(project.id, 'method', e.target.value)}
+                      className="w-full p-1 border rounded"
+                    >
+                      <option value="cutting">Cutting</option>
+                      <option value="rhizome division">Rhizome Division</option>
+                      <option value="runners">Runners</option>
+                      <option value="seeds">Seeds</option>
+                      <option value="tissue culture">Tissue Culture</option>
+                      <option value="splitting">Splitting</option>
+                    </select>
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="date"
+                      value={project.dateStarted}
+                      onChange={(e) => updatePropagationProject(project.id, 'dateStarted', e.target.value)}
+                      className="p-1 border rounded text-xs"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="date"
+                      value={project.expectedReady}
+                      onChange={(e) => updatePropagationProject(project.id, 'expectedReady', e.target.value)}
+                      className="p-1 border rounded text-xs"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="number"
+                      value={project.expectedQuantity}
+                      onChange={(e) => updatePropagationProject(project.id, 'expectedQuantity', parseInt(e.target.value) || 0)}
+                      className="w-16 p-1 border rounded text-center"
+                      min="0"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="number"
+                      value={project.actualQuantity}
+                      onChange={(e) => updatePropagationProject(project.id, 'actualQuantity', parseInt(e.target.value) || 0)}
+                      className="w-16 p-1 border rounded text-center"
+                      min="0"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <select
+                      value={project.status}
+                      onChange={(e) => updatePropagationProject(project.id, 'status', e.target.value)}
+                      className={`p-1 border rounded text-xs ${
+                        project.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        project.status === 'propagating' ? 'bg-blue-100 text-blue-800' :
+                        project.status === 'failed' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      <option value="planning">Planning</option>
+                      <option value="propagating">Propagating</option>
+                      <option value="rooting">Rooting</option>
+                      <option value="growing">Growing</option>
+                      <option value="ready">Ready</option>
+                      <option value="completed">Completed</option>
+                      <option value="failed">Failed</option>
+                    </select>
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="text"
+                      value={project.notes}
+                      onChange={(e) => updatePropagationProject(project.id, 'notes', e.target.value)}
+                      className="w-full p-1 border rounded text-xs"
+                      placeholder="Progress notes..."
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+<div className="bg-white rounded-lg shadow-lg p-6">
+      <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
+        <TrendingUp className="text-cyan-600" />
+        Plant Business Analytics
+      </h3>
+      <div className="grid md:grid-cols-3 gap-6">
+        {(() => {
+          const totalInvestment = plants.reduce((sum, plant) => sum + (plant.quantity * plant.purchasePrice), 0);
+          const potentialRevenue = plants.reduce((sum, plant) => sum + (plant.quantity * plant.sellPrice), 0);
+          const totalProfit = potentialRevenue - totalInvestment;
+          const avgProfitMargin = plants.length > 0 ? 
+            plants.reduce((sum, plant) => {
+              const margin = plant.sellPrice > 0 ? ((plant.sellPrice - plant.purchasePrice) / plant.sellPrice) * 100 : 0;
+              return sum + margin;
+            }, 0) / plants.length : 0;
+
+          const healthyPlants = plants.filter(p => p.condition === 'excellent' || p.condition === 'healthy').length;
+          const healthPercentage = plants.length > 0 ? (healthyPlants / plants.length) * 100 : 0;
+
+          const easyCarePlants = plants.filter(p => p.careLevel === 'easy').length;
+          const moderateCarePlants = plants.filter(p => p.careLevel === 'moderate').length;
+          const hardCarePlants = plants.filter(p => p.careLevel === 'hard' || p.careLevel === 'expert').length;
+
+          return (
+            <>
+              <div className="p-4 bg-green-100 rounded-lg">
+                <h4 className="font-semibold text-green-800 mb-3">Financial Overview</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="text-green-700">
+                    <strong>Total Investment:</strong> €{totalInvestment.toFixed(2)}
+                  </div>
+                  <div className="text-green-700">
+                    <strong>Potential Revenue:</strong> €{potentialRevenue.toFixed(2)}
+                  </div>
+                  <div className="text-green-700">
+                    <strong>Potential Profit:</strong> €{totalProfit.toFixed(2)}
+                  </div>
+                  <div className="text-green-700">
+                    <strong>Avg Profit Margin:</strong> {avgProfitMargin.toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-100 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-3">Plant Health Status</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="text-blue-700">
+                    <strong>Healthy Plants:</strong> {healthyPlants}/{plants.length}
+                  </div>
+                  <div className="text-blue-700">
+                    <strong>Health Rate:</strong> {healthPercentage.toFixed(1)}%
+                  </div>
+                  <div className="text-blue-700">
+                    <strong>Care Required:</strong> {plantCareSchedule.filter(t => !t.completed).length} tasks
+                  </div>
+                  <div className="text-blue-700">
+                    <strong>Active Projects:</strong> {plantPropagation.filter(p => p.status === 'propagating' || p.status === 'rooting').length}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-purple-100 rounded-lg">
+                <h4 className="font-semibold text-purple-800 mb-3">Care Complexity</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="text-purple-700">
+                    <strong>Easy Care:</strong> {easyCarePlants} plants
+                  </div>
+                  <div className="text-purple-700">
+                    <strong>Moderate Care:</strong> {moderateCarePlants} plants
+                  </div>
+                  <div className="text-purple-700">
+                    <strong>Advanced Care:</strong> {hardCarePlants} plants
+                  </div>
+                  <div className="text-purple-700">
+                    <strong>Most Common:</strong> {easyCarePlants >= moderateCarePlants && easyCarePlants >= hardCarePlants ? 'Easy' : 
+                                                 moderateCarePlants >= hardCarePlants ? 'Moderate' : 'Advanced'}
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+        })()}
+      </div>
+    </div>
+
+)}
+
   );
 };
 
