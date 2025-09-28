@@ -1,4 +1,4 @@
-// pages/index.js - This is your main app file for Vercel
+// pages/index.js - Complete version with ALL tabs
 import React, { useState, useEffect } from 'react';
 import { Calculator, CheckSquare, DollarSign, TrendingUp, Heart, BarChart3, Calendar, Droplet, TrendingDown } from 'lucide-react';
 
@@ -445,7 +445,6 @@ const AquariumBusinessPlanner = () => {
         </div>
       </div>
 
-      {/* Rest of your app content stays the same... */}
       {activeTab === 'equipment' && (
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
@@ -536,7 +535,717 @@ const AquariumBusinessPlanner = () => {
         </div>
       )}
 
-      {/* Add all other tab content here - keeping it short for space */}
+      {activeTab === 'operating' && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold flex items-center gap-2">
+              <DollarSign className="text-red-600" />
+              Monthly Operating Costs
+            </h2>
+            <button
+              onClick={addOperatingCost}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              + Add Cost Item
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2 text-left">Cost Item</th>
+                  {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(month => (
+                    <th key={month} className="border p-2">{month}</th>
+                  ))}
+                  <th className="border p-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {operatingCosts.map((cost, costIndex) => (
+                  <tr key={costIndex} className="hover:bg-gray-50">
+                    <td className="border p-2">
+                      <input
+                        type="text"
+                        value={cost.name}
+                        onChange={(e) => updateOperatingCostName(costIndex, e.target.value)}
+                        className="font-medium p-1 border rounded w-full"
+                        placeholder="Cost item name"
+                      />
+                    </td>
+                    {cost.costs.map((monthCost, monthIndex) => (
+                      <td key={monthIndex} className="border p-1">
+                        <input
+                          type="number"
+                          value={monthCost}
+                          onChange={(e) => updateOperatingCost(costIndex, monthIndex, e.target.value)}
+                          className="w-16 p-1 border rounded text-center text-xs"
+                          min="0"
+                          step="0.01"
+                        />
+                      </td>
+                    ))}
+                    <td className="border p-2 text-center">
+                      <button
+                        onClick={() => removeOperatingCost(costIndex)}
+                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs"
+                        disabled={operatingCosts.length === 1}
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                <tr className="bg-blue-100 font-bold">
+                  <td className="border p-2">MONTHLY TOTALS</td>
+                  {Array.from({ length: 12 }, (_, monthIndex) => (
+                    <td key={monthIndex} className="border p-2 text-center">
+                      €{getMonthlyOperatingTotal(monthIndex).toFixed(2)}
+                    </td>
+                  ))}
+                  <td className="border p-2"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'sales' && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold flex items-center gap-2">
+              <TrendingUp className="text-green-600" />
+              Weekly Sales Tracking
+            </h2>
+            <button
+              onClick={fillSampleData}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Fill Sample Data
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto max-h-96 overflow-y-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead className="sticky top-0 bg-gray-100">
+                <tr>
+                  <th className="border p-2">Week</th>
+                  <th className="border p-2">Guppies Qty</th>
+                  <th className="border p-2">Guppies €</th>
+                  <th className="border p-2">Plants Qty</th>
+                  <th className="border p-2">Plants €</th>
+                  <th className="border p-2">Shrimp Qty</th>
+                  <th className="border p-2">Shrimp €</th>
+                  <th className="border p-2">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {weeklySales.map((week, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="border p-2 text-center font-semibold">{week.week}</td>
+                    <td className="border p-2">
+                      <input
+                        type="number"
+                        value={week.guppies.quantity}
+                        onChange={(e) => updateWeeklySales(index, 'guppies', 'quantity', e.target.value)}
+                        className="w-full p-1 border rounded text-center"
+                        min="0"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="number"
+                        value={week.guppies.price}
+                        onChange={(e) => updateWeeklySales(index, 'guppies', 'price', e.target.value)}
+                        className="w-full p-1 border rounded text-center"
+                        min="0"
+                        step="0.01"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="number"
+                        value={week.plants.quantity}
+                        onChange={(e) => updateWeeklySales(index, 'plants', 'quantity', e.target.value)}
+                        className="w-full p-1 border rounded text-center"
+                        min="0"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="number"
+                        value={week.plants.price}
+                        onChange={(e) => updateWeeklySales(index, 'plants', 'price', e.target.value)}
+                        className="w-full p-1 border rounded text-center"
+                        min="0"
+                        step="0.01"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="number"
+                        value={week.shrimp.quantity}
+                        onChange={(e) => updateWeeklySales(index, 'shrimp', 'quantity', e.target.value)}
+                        className="w-full p-1 border rounded text-center"
+                        min="0"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="number"
+                        value={week.shrimp.price}
+                        onChange={(e) => updateWeeklySales(index, 'shrimp', 'price', e.target.value)}
+                        className="w-full p-1 border rounded text-center"
+                        min="0"
+                        step="0.01"
+                      />
+                    </td>
+                    <td className="border p-2 text-center font-semibold bg-green-100">
+                      €{getWeeklyRevenue(week).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 p-4 bg-green-100 rounded-lg">
+            <div className="text-lg font-semibold text-green-800">Total Annual Revenue</div>
+            <div className="text-2xl font-bold text-green-600">€{getTotalRevenue().toFixed(2)}</div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'breeding' && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold flex items-center gap-2">
+              <Heart className="text-pink-600" />
+              Breeding Management
+            </h2>
+            <button
+              onClick={addBreedingPair}
+              className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+            >
+              + Add Breeding Pair
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2 text-left">Pair Name</th>
+                  <th className="border p-2 text-left">Species</th>
+                  <th className="border p-2 text-left">Tank</th>
+                  <th className="border p-2 text-center">Breeding Date</th>
+                  <th className="border p-2 text-center">Expected Birth</th>
+                  <th className="border p-2 text-center">Fry Count</th>
+                  <th className="border p-2 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {breedingPairs.map((pair) => (
+                  <tr key={pair.id} className="hover:bg-gray-50">
+                    <td className="border p-2">
+                      <input
+                        type="text"
+                        value={pair.pairName}
+                        onChange={(e) => updateBreedingPair(pair.id, 'pairName', e.target.value)}
+                        className="w-full p-1 border rounded"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <select
+                        value={pair.species}
+                        onChange={(e) => updateBreedingPair(pair.id, 'species', e.target.value)}
+                        className="w-full p-1 border rounded"
+                      >
+                        <option value="Guppy">Guppy</option>
+                        <option value="Molly">Molly</option>
+                        <option value="Platy">Platy</option>
+                        <option value="Swordtail">Swordtail</option>
+                        <option value="Betta">Betta</option>
+                      </select>
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="text"
+                        value={pair.tankNumber}
+                        onChange={(e) => updateBreedingPair(pair.id, 'tankNumber', e.target.value)}
+                        className="w-full p-1 border rounded"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="date"
+                        value={pair.breedingDate}
+                        onChange={(e) => updateBreedingPair(pair.id, 'breedingDate', e.target.value)}
+                        className="p-1 border rounded text-xs"
+                      />
+                    </td>
+                    <td className="border p-2 text-center font-medium">
+                      <input
+                        type="date"
+                        value={pair.expectedBirth}
+                        onChange={(e) => updateBreedingPair(pair.id, 'expectedBirth', e.target.value)}
+                        className="p-1 border rounded text-xs"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="number"
+                        value={pair.fryCount}
+                        onChange={(e) => updateBreedingPair(pair.id, 'fryCount', parseInt(e.target.value) || 0)}
+                        className="w-16 p-1 border rounded text-center"
+                        min="0"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <select
+                        value={pair.status}
+                        onChange={(e) => updateBreedingPair(pair.id, 'status', e.target.value)}
+                        className={`p-1 border rounded text-xs ${
+                          pair.status === 'breeding' ? 'bg-blue-100 text-blue-800' :
+                          pair.status === 'pregnant' ? 'bg-yellow-100 text-yellow-800' :
+                          pair.status === 'born' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        <option value="planning">Planning</option>
+                        <option value="breeding">Breeding</option>
+                        <option value="pregnant">Pregnant</option>
+                        <option value="born">Fry Born</option>
+                        <option value="completed">Completed</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'financial' && (
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-semibold flex items-center gap-2 mb-4">
+            <BarChart3 className="text-green-600" />
+            Cash Flow Analysis
+          </h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            {(() => {
+              const cashFlow = calculateCashFlow();
+              return (
+                <>
+                  <div className="p-4 bg-blue-100 rounded-lg">
+                    <div className="text-sm font-semibold text-blue-800">Monthly Revenue</div>
+                    <div className="text-2xl font-bold text-blue-600">€{cashFlow.monthlyRevenue.toFixed(2)}</div>
+                  </div>
+                  <div className="p-4 bg-red-100 rounded-lg">
+                    <div className="text-sm font-semibold text-red-800">Monthly Costs</div>
+                    <div className="text-2xl font-bold text-red-600">€{cashFlow.monthlyOperatingCost.toFixed(2)}</div>
+                  </div>
+                  <div className="p-4 bg-green-100 rounded-lg">
+                    <div className="text-sm font-semibold text-green-800">Monthly Profit</div>
+                    <div className="text-2xl font-bold text-green-600">€{cashFlow.monthlyProfit.toFixed(2)}</div>
+                  </div>
+                  <div className="p-4 bg-purple-100 rounded-lg">
+                    <div className="text-sm font-semibold text-purple-800">Break-Even</div>
+                    <div className="text-2xl font-bold text-purple-600">{cashFlow.breakEvenMonths} months</div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'tasks' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold flex items-center gap-2">
+                <Calendar className="text-blue-600" />
+                Daily Tasks & Schedules
+              </h2>
+              <button
+                onClick={addTask}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                + Add Task
+              </button>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              {tasks.map((task) => (
+                <div key={task.id} className={`p-4 border rounded-lg ${
+                  task.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
+                }`}>
+                  <div className="flex justify-between items-start mb-2">
+                    <input
+                      type="text"
+                      value={task.title}
+                      onChange={(e) => updateTask(task.id, 'title', e.target.value)}
+                      className="font-semibold bg-transparent border-none outline-none flex-1"
+                    />
+                    <button
+                      onClick={() => updateTask(task.id, 'completed', !task.completed)}
+                      className={`px-3 py-1 rounded text-xs ${
+                        task.completed 
+                          ? 'bg-green-600 text-white' 
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {task.completed ? 'Completed' : 'Mark Done'}
+                    </button>
+                  </div>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <div>Type: {task.type} | Frequency: {task.frequency}</div>
+                    <div>Next Due: {task.nextDue}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Droplet className="text-cyan-600" />
+                Water Quality Logs
+              </h3>
+              <button
+                onClick={addWaterLog}
+                className="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700"
+              >
+                + Add Log Entry
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border p-2">Date</th>
+                    <th className="border p-2">Tank</th>
+                    <th className="border p-2">pH</th>
+                    <th className="border p-2">Temp (°C)</th>
+                    <th className="border p-2">NH3</th>
+                    <th className="border p-2">NO2</th>
+                    <th className="border p-2">NO3</th>
+                    <th className="border p-2">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {waterLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-gray-50">
+                      <td className="border p-2">
+                        <input
+                          type="date"
+                          value={log.date}
+                          onChange={(e) => updateWaterLog(log.id, 'date', e.target.value)}
+                          className="p-1 border rounded text-xs"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="text"
+                          value={log.tankNumber}
+                          onChange={(e) => updateWaterLog(log.id, 'tankNumber', e.target.value)}
+                          className="w-full p-1 border rounded"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={log.ph}
+                          onChange={(e) => updateWaterLog(log.id, 'ph', parseFloat(e.target.value) || 0)}
+                          className="w-16 p-1 border rounded text-center"
+                          step="0.1"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={log.temperature}
+                          onChange={(e) => updateWaterLog(log.id, 'temperature', parseFloat(e.target.value) || 0)}
+                          className="w-16 p-1 border rounded text-center"
+                          step="0.1"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={log.ammonia}
+                          onChange={(e) => updateWaterLog(log.id, 'ammonia', parseFloat(e.target.value) || 0)}
+                          className="w-16 p-1 border rounded text-center"
+                          step="0.1"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={log.nitrite}
+                          onChange={(e) => updateWaterLog(log.id, 'nitrite', parseFloat(e.target.value) || 0)}
+                          className="w-16 p-1 border rounded text-center"
+                          step="0.1"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={log.nitrate}
+                          onChange={(e) => updateWaterLog(log.id, 'nitrate', parseFloat(e.target.value) || 0)}
+                          className="w-16 p-1 border rounded text-center"
+                          step="0.1"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="text"
+                          value={log.notes}
+                          onChange={(e) => updateWaterLog(log.id, 'notes', e.target.value)}
+                          className="w-full p-1 border rounded"
+                          placeholder="Notes"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'market' && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold flex items-center gap-2">
+              <TrendingDown className="text-orange-600" />
+              Market Intelligence & Pricing
+            </h2>
+            <button
+              onClick={addMarketPrice}
+              className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
+            >
+              + Add Market Data
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2 text-left">Species</th>
+                  <th className="border p-2 text-left">Size</th>
+                  <th className="border p-2 text-center">Your Price</th>
+                  <th className="border p-2 text-center">Market Price</th>
+                  <th className="border p-2 text-center">Price Gap</th>
+                  <th className="border p-2 text-left">Competitor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {marketPrices.map((price) => {
+                  const gap = price.marketPrice - price.currentPrice;
+                  const gapPercent = price.currentPrice > 0 ? ((gap / price.currentPrice) * 100).toFixed(1) : 0;
+                  return (
+                    <tr key={price.id} className="hover:bg-gray-50">
+                      <td className="border p-2">
+                        <input
+                          type="text"
+                          value={price.species}
+                          onChange={(e) => updateMarketPrice(price.id, 'species', e.target.value)}
+                          className="w-full p-1 border rounded"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <select
+                          value={price.size}
+                          onChange={(e) => updateMarketPrice(price.id, 'size', e.target.value)}
+                          className="w-full p-1 border rounded"
+                        >
+                          <option value="Juvenile">Juvenile</option>
+                          <option value="Adult">Adult</option>
+                          <option value="Breeding">Breeding</option>
+                          <option value="Large">Large</option>
+                        </select>
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={price.currentPrice}
+                          onChange={(e) => updateMarketPrice(price.id, 'currentPrice', parseFloat(e.target.value) || 0)}
+                          className="w-20 p-1 border rounded text-center"
+                          min="0"
+                          step="0.01"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={price.marketPrice}
+                          onChange={(e) => updateMarketPrice(price.id, 'marketPrice', parseFloat(e.target.value) || 0)}
+                          className="w-20 p-1 border rounded text-center"
+                          min="0"
+                          step="0.01"
+                        />
+                      </td>
+                      <td className="border p-2 text-center">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          gap > 0 ? 'bg-green-100 text-green-800' : 
+                          gap < 0 ? 'bg-red-100 text-red-800' : 
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          €{gap.toFixed(2)} ({gapPercent}%)
+                        </span>
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="text"
+                          value={price.competitor}
+                          onChange={(e) => updateMarketPrice(price.id, 'competitor', e.target.value)}
+                          className="w-full p-1 border rounded"
+                          placeholder="Competitor name"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'customers' && (
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold flex items-center gap-2">
+              <Calculator className="text-blue-600" />
+              Customer Management
+            </h2>
+            <button
+              onClick={addCustomer}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              + Add Customer
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2 text-left">Name</th>
+                  <th className="border p-2 text-left">Email</th>
+                  <th className="border p-2 text-left">Phone</th>
+                  <th className="border p-2 text-center">Total Purchases</th>
+                  <th className="border p-2 text-center">Visits</th>
+                  <th className="border p-2 text-center">Loyalty Tier</th>
+                  <th className="border p-2 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {customers.map((customer) => (
+                  <tr key={customer.id} className="hover:bg-gray-50">
+                    <td className="border p-2">
+                      <input
+                        type="text"
+                        value={customer.name}
+                        onChange={(e) => updateCustomer(customer.id, 'name', e.target.value)}
+                        className="w-full p-1 border rounded"
+                        placeholder="Customer name"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="email"
+                        value={customer.email}
+                        onChange={(e) => updateCustomer(customer.id, 'email', e.target.value)}
+                        className="w-full p-1 border rounded"
+                        placeholder="Email"
+                      />
+                    </td>
+                    <td className="border p-2">
+                      <input
+                        type="tel"
+                        value={customer.phone}
+                        onChange={(e) => updateCustomer(customer.id, 'phone', e.target.value)}
+                        className="w-full p-1 border rounded"
+                        placeholder="Phone"
+                      />
+                    </td>
+                    <td className="border p-2 text-center">
+                      <input
+                        type="number"
+                        value={customer.totalPurchases}
+                        onChange={(e) => updateCustomer(customer.id, 'totalPurchases', parseFloat(e.target.value) || 0)}
+                        className="w-20 p-1 border rounded text-center"
+                        min="0"
+                        step="0.01"
+                      />
+                    </td>
+                    <td className="border p-2 text-center">
+                      <input
+                        type="number"
+                        value={customer.visitCount}
+                        onChange={(e) => updateCustomer(customer.id, 'visitCount', parseInt(e.target.value) || 0)}
+                        className="w-16 p-1 border rounded text-center"
+                        min="0"
+                      />
+                    </td>
+                    <td className="border p-2 text-center">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        customer.loyaltyTier === 'Gold' ? 'bg-yellow-100 text-yellow-800' :
+                        customer.loyaltyTier === 'Silver' ? 'bg-gray-100 text-gray-800' :
+                        'bg-orange-100 text-orange-800'
+                      }`}>
+                        {customer.loyaltyTier}
+                      </span>
+                    </td>
+                    <td className="border p-2 text-center">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        customer.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {customer.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'analytics' && (
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-semibold flex items-center gap-2 mb-4">
+            <Droplet className="text-purple-600" />
+            Business Analytics
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-4 bg-blue-100 rounded-lg">
+              <div className="text-sm font-semibold text-blue-800">Initial Investment</div>
+              <div className="text-2xl font-bold text-blue-600">€{equipmentTotal.toFixed(2)}</div>
+            </div>
+            <div className="p-4 bg-green-100 rounded-lg">
+              <div className="text-sm font-semibold text-green-800">Annual Revenue</div>
+              <div className="text-2xl font-bold text-green-600">€{getTotalRevenue().toFixed(2)}</div>
+            </div>
+            <div className="p-4 bg-purple-100 rounded-lg">
+              <div className="text-sm font-semibold text-purple-800">Net Profit</div>
+              <div className="text-2xl font-bold text-purple-600">
+                €{(() => {
+                  const totalRevenue = getTotalRevenue();
+                  const totalOperatingCosts = operatingCosts.reduce((sum, cost) => 
+                    sum + cost.costs.reduce((total, monthly) => total + (monthly || 0), 0), 0
+                  );
+                  return (totalRevenue - totalOperatingCosts).toFixed(2);
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
