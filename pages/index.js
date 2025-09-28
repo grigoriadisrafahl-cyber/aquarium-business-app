@@ -766,6 +766,7 @@ const AquariumBusinessPlanner = () => {
                         <option value="Platy">Platy</option>
                         <option value="Swordtail">Swordtail</option>
                         <option value="Betta">Betta</option>
+                        <option value="Shrimp">Shrimp</option>
                       </select>
                     </td>
                     <td className="border p-2">
