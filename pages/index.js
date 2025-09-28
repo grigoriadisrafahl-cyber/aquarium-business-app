@@ -442,6 +442,7 @@ const AquariumBusinessPlanner = () => {
           <TabButton id="market" icon={TrendingDown} label="Market Intelligence" isActive={activeTab === 'market'} onClick={setActiveTab} />
           <TabButton id="customers" icon={Calculator} label="Customer Management" isActive={activeTab === 'customers'} onClick={setActiveTab} />
           <TabButton id="analytics" icon={Droplet} label="Analytics" isActive={activeTab === 'analytics'} onClick={setActiveTab} />
+          <TabButton id="reports" icon={BarChart3} label="Sales Analytics" isActive={activeTab === 'reports'} onClick={setActiveTab} />
         </div>
       </div>
 
@@ -1246,6 +1247,255 @@ const AquariumBusinessPlanner = () => {
           </div>
         </div>
       )}
+{activeTab === 'reports' && (
+  <div className="space-y-6">
+    {/* Monthly/Quarterly Profit Analysis */}
+    <div className="bg-white rounded-lg shadow-lg p-6">
+      <h2 className="text-2xl font-semibold flex items-center gap-2 mb-4">
+        <BarChart3 className="text-blue-600" />
+        Monthly Profit Analysis
+      </h2>
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
+        {(() => {
+          const getMonthlyData = () => {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return months.map((month, index) => {
+              const startWeek = Math.floor(index * 4.33);
+              const endWeek = Math.floor((index + 1) * 4.33);
+              const monthlyRevenue = weeklySales
+                .slice(startWeek, endWeek)
+                .reduce((sum, week) => sum + getWeeklyRevenue(week), 0);
+              const monthlyCosts = getMonthlyOperatingTotal(index);
+              const monthlyProfit = monthlyRevenue - monthlyCosts;
+              
+              return {
+                month,
+                revenue: monthlyRevenue,
+                costs: monthlyCosts,
+                profit: monthlyProfit
+              };
+            });
+          };
+
+          const monthlyData = getMonthlyData();
+          const currentQuarter = Math.floor(new Date().getMonth() / 3);
+          const quarterlyData = [
+            monthlyData.slice(0, 3).reduce((sum, m) => sum + m.profit, 0),
+            monthlyData.slice(3, 6).reduce((sum, m) => sum + m.profit, 0),
+            monthlyData.slice(6, 9).reduce((sum, m) => sum + m.profit, 0),
+            monthlyData.slice(9, 12).reduce((sum, m) => sum + m.profit, 0)
+          ];
+
+          return (
+            <>
+              <div className="p-4 bg-green-100 rounded-lg">
+                <div className="text-sm font-semibold text-green-800">This Month Profit</div>
+                <div className="text-2xl font-bold text-green-600">
+                  €{monthlyData[new Date().getMonth()].profit.toFixed(2)}
+                </div>
+              </div>
+              <div className="p-4 bg-blue-100 rounded-lg">
+                <div className="text-sm font-semibold text-blue-800">This Quarter</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  €{quarterlyData[currentQuarter].toFixed(2)}
+                </div>
+              </div>
+              <div className="p-4 bg-purple-100 rounded-lg">
+                <div className="text-sm font-semibold text-purple-800">Best Month</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {monthlyData.reduce((best, current, index) => 
+                    current.profit > monthlyData[best].profit ? index : best, 0) + 1 <= 12 ? 
+                    ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][monthlyData.reduce((best, current, index) => 
+                    current.profit > monthlyData[best].profit ? index : best, 0)] : 'Jan'}
+                </div>
+              </div>
+              <div className="p-4 bg-orange-100 rounded-lg">
+                <div className="text-sm font-semibold text-orange-800">Annual Projection</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  €{(monthlyData.reduce((sum, m) => sum + m.profit, 0) * 1.1).toFixed(2)}
+                </div>
+              </div>
+            </>
+          );
+        })()}
+      </div>
+
+      <div className="overflow-x-auto">
+        <div className="flex items-end gap-2 h-64 p-4 bg-gray-50 rounded-lg min-w-[800px]">
+          {(() => {
+            const getMonthlyData = () => {
+              const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+              return months.map((month, index) => {
+                const startWeek = Math.floor(index * 4.33);
+                const endWeek = Math.floor((index + 1) * 4.33);
+                const monthlyRevenue = weeklySales
+                  .slice(startWeek, endWeek)
+                  .reduce((sum, week) => sum + getWeeklyRevenue(week), 0);
+                const monthlyCosts = getMonthlyOperatingTotal(index);
+                const monthlyProfit = monthlyRevenue - monthlyCosts;
+                
+                return {
+                  month,
+                  revenue: monthlyRevenue,
+                  costs: monthlyCosts,
+                  profit: monthlyProfit
+                };
+              });
+            };
+
+            const monthlyData = getMonthlyData();
+            const maxProfit = Math.max(...monthlyData.map(m => Math.max(m.revenue, m.costs, Math.abs(m.profit))));
+            const scale = maxProfit > 0 ? 200 / maxProfit : 1;
+
+            return monthlyData.map((data, index) => (
+              <div key={index} className="flex flex-col items-center gap-2 flex-1">
+                <div className="flex flex-col items-center gap-1">
+                  <div 
+                    className="bg-green-500 rounded-t w-8 min-h-[4px]"
+                    style={{ height: `${Math.max(4, data.revenue * scale)}px` }}
+                    title={`Revenue: €${data.revenue.toFixed(2)}`}
+                  ></div>
+                  <div 
+                    className="bg-red-500 w-8 min-h-[4px]"
+                    style={{ height: `${Math.max(4, data.costs * scale)}px` }}
+                    title={`Costs: €${data.costs.toFixed(2)}`}
+                  ></div>
+                  <div 
+                    className={`w-8 min-h-[4px] rounded-b ${data.profit >= 0 ? 'bg-blue-500' : 'bg-orange-500'}`}
+                    style={{ height: `${Math.max(4, Math.abs(data.profit) * scale)}px` }}
+                    title={`Profit: €${data.profit.toFixed(2)}`}
+                  ></div>
+                </div>
+                <div className="text-xs font-medium text-center">{data.month}</div>
+                <div className="text-xs text-gray-600 text-center">€{data.profit.toFixed(0)}</div>
+              </div>
+            ));
+          })()}
+        </div>
+        <div className="flex justify-center gap-4 mt-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-green-500 rounded"></div>
+            <span>Revenue</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-red-500 rounded"></div>
+            <span>Costs</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-blue-500 rounded"></div>
+            <span>Profit</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white rounded-lg shadow-lg p-6">
+      <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
+        <TrendingUp className="text-green-600" />
+        Best-Selling Species Analysis
+      </h3>
+      <div className="grid md:grid-cols-3 gap-6">
+        {(() => {
+          const speciesData = {
+            guppies: {
+              name: 'Guppies',
+              totalSold: weeklySales.reduce((sum, week) => sum + (week.guppies?.quantity || 0), 0),
+              totalRevenue: weeklySales.reduce((sum, week) => sum + ((week.guppies?.quantity || 0) * (week.guppies?.price || 0)), 0),
+              avgPrice: weeklySales.reduce((sum, week) => sum + (week.guppies?.price || 0), 0) / weeklySales.length,
+              color: 'blue'
+            },
+            plants: {
+              name: 'Plants',
+              totalSold: weeklySales.reduce((sum, week) => sum + (week.plants?.quantity || 0), 0),
+              totalRevenue: weeklySales.reduce((sum, week) => sum + ((week.plants?.quantity || 0) * (week.plants?.price || 0)), 0),
+              avgPrice: weeklySales.reduce((sum, week) => sum + (week.plants?.price || 0), 0) / weeklySales.length,
+              color: 'green'
+            },
+            shrimp: {
+              name: 'Shrimp',
+              totalSold: weeklySales.reduce((sum, week) => sum + (week.shrimp?.quantity || 0), 0),
+              totalRevenue: weeklySales.reduce((sum, week) => sum + ((week.shrimp?.quantity || 0) * (week.shrimp?.price || 0)), 0),
+              avgPrice: weeklySales.reduce((sum, week) => sum + (week.shrimp?.price || 0), 0) / weeklySales.length,
+              color: 'pink'
+            }
+          };
+
+          const sortedSpecies = Object.values(speciesData).sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+          return sortedSpecies.map((species, index) => (
+            <div key={index} className="p-4 bg-gray-100 rounded-lg border-l-4 border-gray-400">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="font-semibold text-gray-800">{species.name}</h4>
+                <span className="px-2 py-1 text-xs bg-gray-200 text-gray-800 rounded-full">
+                  #{index + 1}
+                </span>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="text-gray-700">
+                  <strong>Total Sold:</strong> {species.totalSold} units
+                </div>
+                <div className="text-gray-700">
+                  <strong>Revenue:</strong> €{species.totalRevenue.toFixed(2)}
+                </div>
+                <div className="text-gray-700">
+                  <strong>Avg Price:</strong> €{species.avgPrice.toFixed(2)}
+                </div>
+                <div className="text-gray-700">
+                  <strong>Weekly Avg:</strong> {(species.totalSold / 52).toFixed(1)} units
+                </div>
+              </div>
+            </div>
+          ));
+        })()}
+      </div>
+    </div>
+
+    <div className="bg-white rounded-lg shadow-lg p-6">
+      <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
+        <Calendar className="text-orange-600" />
+        Seasonal Sales Patterns
+      </h3>
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
+        {(() => {
+          const seasons = [
+            { name: 'Spring', weeks: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], color: 'green' },
+            { name: 'Summer', weeks: [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], color: 'yellow' },
+            { name: 'Fall', weeks: [35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47], color: 'orange' },
+            { name: 'Winter', weeks: [48, 49, 50, 51, 0, 1, 2, 3, 4, 5, 6, 7, 8], color: 'blue' }
+          ];
+
+          return seasons.map((season) => {
+            const seasonRevenue = season.weeks.reduce((sum, weekIndex) => {
+              if (weekIndex >= 0 && weekIndex < weeklySales.length) {
+                return sum + getWeeklyRevenue(weeklySales[weekIndex]);
+              }
+              return sum;
+            }, 0);
+
+            const seasonAvgWeekly = seasonRevenue / season.weeks.length;
+
+            return (
+              <div key={season.name} className="p-4 bg-gray-100 rounded-lg">
+                <h4 className="font-semibold text-gray-800 mb-3">{season.name}</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="text-gray-700">
+                    <strong>Total Revenue:</strong> €{seasonRevenue.toFixed(2)}
+                  </div>
+                  <div className="text-gray-700">
+                    <strong>Weekly Avg:</strong> €{seasonAvgWeekly.toFixed(2)}
+                  </div>
+                  <div className="text-gray-700">
+                    <strong>Performance:</strong> {seasonAvgWeekly > getTotalRevenue()/52 ? '📈 Above Avg' : '📉 Below Avg'}
+                  </div>
+                </div>
+              </div>
+            );
+          });
+        })()}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
