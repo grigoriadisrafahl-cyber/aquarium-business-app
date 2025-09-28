@@ -117,6 +117,76 @@ const AquariumBusinessPlanner = () => {
     }
   ]));
 
+  const [plants, setPlants] = useState(() => loadFromStorage('plants', [
+  {
+    id: 1,
+    name: 'Java Fern',
+    species: 'Microsorum pteropus',
+    quantity: 15,
+    location: 'Tank 1',
+    purchasePrice: 3.50,
+    sellPrice: 6.00,
+    supplier: 'Aqua Plants Co',
+    dateAcquired: '2024-09-01',
+    condition: 'healthy',
+    careLevel: 'easy',
+    lightRequirement: 'low',
+    propagationType: 'rhizome',
+    notes: 'Fast growing, good for beginners'
+  },
+  {
+    id: 2,
+    name: 'Amazon Sword',
+    species: 'Echinodorus amazonicus',
+    quantity: 8,
+    location: 'Tank 2',
+    purchasePrice: 4.00,
+    sellPrice: 8.50,
+    supplier: 'Green Aquatics',
+    dateAcquired: '2024-09-15',
+    condition: 'excellent',
+    careLevel: 'moderate',
+    lightRequirement: 'medium',
+    propagationType: 'runners',
+    notes: 'Popular centerpiece plant'
+  }
+]));
+
+const [plantCareSchedule, setPlantCareSchedule] = useState(() => loadFromStorage('plantCareSchedule', [
+  {
+    id: 1,
+    plantId: 1,
+    taskType: 'fertilize',
+    frequency: 'weekly',
+    lastDone: '2024-09-22',
+    nextDue: '2024-09-29',
+    completed: false
+  },
+  {
+    id: 2,
+    plantId: 2,
+    taskType: 'trim',
+    frequency: 'monthly',
+    lastDone: '2024-09-01',
+    nextDue: '2024-10-01',
+    completed: false
+  }
+]));
+
+const [plantPropagation, setPlantPropagation] = useState(() => loadFromStorage('plantPropagation', [
+  {
+    id: 1,
+    parentPlantId: 1,
+    method: 'rhizome division',
+    dateStarted: '2024-09-20',
+    expectedReady: '2024-10-20',
+    expectedQuantity: 5,
+    actualQuantity: 0,
+    status: 'propagating',
+    notes: 'Cut rhizome into 3 sections'
+  }
+]));
+
   // Auto-save data whenever it changes
   useEffect(() => { saveToStorage('equipment', equipment); }, [equipment]);
   useEffect(() => { saveToStorage('operatingCosts', operatingCosts); }, [operatingCosts]);
@@ -126,6 +196,9 @@ const AquariumBusinessPlanner = () => {
   useEffect(() => { saveToStorage('tasks', tasks); }, [tasks]);
   useEffect(() => { saveToStorage('waterLogs', waterLogs); }, [waterLogs]);
   useEffect(() => { saveToStorage('marketPrices', marketPrices); }, [marketPrices]);
+  useEffect(() => { saveToStorage('plants', plants); }, [plants]);
+  useEffect(() => { saveToStorage('plantCareSchedule', plantCareSchedule); }, [plantCareSchedule]);
+  useEffect(() => { saveToStorage('plantPropagation', plantPropagation); }, [plantPropagation]);
 
   // Export all data as JSON file
   const exportData = () => {
@@ -386,6 +459,85 @@ const AquariumBusinessPlanner = () => {
     setMarketPrices(newPrices);
   };
 
+  const addPlant = () => {
+  setPlants([...plants, {
+    id: Date.now(),
+    name: 'New Plant',
+    species: '',
+    quantity: 0,
+    location: 'Tank 1',
+    purchasePrice: 0,
+    sellPrice: 0,
+    supplier: '',
+    dateAcquired: new Date().toISOString().split('T')[0],
+    condition: 'healthy',
+    careLevel: 'easy',
+    lightRequirement: 'low',
+    propagationType: 'cutting',
+    notes: ''
+  }]);
+};
+
+const updatePlant = (id, field, value) => {
+  const newPlants = plants.map(plant => {
+    if (plant.id === id) {
+      return { ...plant, [field]: value };
+    }
+    return plant;
+  });
+  setPlants(newPlants);
+};
+
+const removePlant = (id) => {
+  setPlants(plants.filter(plant => plant.id !== id));
+};
+
+const addPlantCareTask = () => {
+  setPlantCareSchedule([...plantCareSchedule, {
+    id: Date.now(),
+    plantId: plants.length > 0 ? plants[0].id : 1,
+    taskType: 'fertilize',
+    frequency: 'weekly',
+    lastDone: new Date().toISOString().split('T')[0],
+    nextDue: new Date().toISOString().split('T')[0],
+    completed: false
+  }]);
+};
+
+const updatePlantCareTask = (id, field, value) => {
+  const newSchedule = plantCareSchedule.map(task => {
+    if (task.id === id) {
+      return { ...task, [field]: value };
+    }
+    return task;
+  });
+  setPlantCareSchedule(newSchedule);
+};
+
+const addPropagationProject = () => {
+  setPlantPropagation([...plantPropagation, {
+    id: Date.now(),
+    parentPlantId: plants.length > 0 ? plants[0].id : 1,
+    method: 'cutting',
+    dateStarted: new Date().toISOString().split('T')[0],
+    expectedReady: new Date().toISOString().split('T')[0],
+    expectedQuantity: 1,
+    actualQuantity: 0,
+    status: 'planning',
+    notes: ''
+  }]);
+};
+
+const updatePropagationProject = (id, field, value) => {
+  const newPropagation = plantPropagation.map(project => {
+    if (project.id === id) {
+      return { ...project, [field]: value };
+    }
+    return project;
+  });
+  setPlantPropagation(newPropagation);
+};
+
   const TabButton = ({ id, icon: Icon, label, isActive, onClick }) => (
     <button
       onClick={() => onClick(id)}
@@ -443,6 +595,7 @@ const AquariumBusinessPlanner = () => {
           <TabButton id="customers" icon={Calculator} label="Customer Management" isActive={activeTab === 'customers'} onClick={setActiveTab} />
           <TabButton id="analytics" icon={Droplet} label="Analytics" isActive={activeTab === 'analytics'} onClick={setActiveTab} />
           <TabButton id="reports" icon={BarChart3} label="Sales Analytics" isActive={activeTab === 'reports'} onClick={setActiveTab} />
+           <TabButton id="plants" icon={Droplet} label="Plant Management" isActive={activeTab === 'plants'} onClick={setActiveTab} />
         </div>
       </div>
 
@@ -1493,6 +1646,194 @@ const AquariumBusinessPlanner = () => {
             );
           });
         })()}
+      </div>
+    </div>
+  </div>
+)}
+  {activeTab === 'plants' && (
+  <div className="space-y-6">
+    <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold flex items-center gap-2">
+          <Droplet className="text-green-600" />
+          Plant Inventory Management
+        </h2>
+        <button
+          onClick={addPlant}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          + Add Plant
+        </button>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Plant Name</th>
+              <th className="border p-2 text-left">Species</th>
+              <th className="border p-2 text-center">Qty</th>
+              <th className="border p-2 text-left">Location</th>
+              <th className="border p-2 text-center">Buy Price</th>
+              <th className="border p-2 text-center">Sell Price</th>
+              <th className="border p-2 text-center">Profit/Unit</th>
+              <th className="border p-2 text-center">Condition</th>
+              <th className="border p-2 text-center">Care Level</th>
+              <th className="border p-2 text-center">Light Need</th>
+              <th className="border p-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plants.map((plant) => {
+              const profitPerUnit = plant.sellPrice - plant.purchasePrice;
+              
+              return (
+                <tr key={plant.id} className="hover:bg-gray-50">
+                  <td className="border p-2">
+                    <input
+                      type="text"
+                      value={plant.name}
+                      onChange={(e) => updatePlant(plant.id, 'name', e.target.value)}
+                      className="w-full p-1 border rounded font-medium"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="text"
+                      value={plant.species}
+                      onChange={(e) => updatePlant(plant.id, 'species', e.target.value)}
+                      className="w-full p-1 border rounded text-xs"
+                      placeholder="Scientific name"
+                    />
+                  </td>
+                  <td className="border p-2 text-center">
+                    <input
+                      type="number"
+                      value={plant.quantity}
+                      onChange={(e) => updatePlant(plant.id, 'quantity', parseInt(e.target.value) || 0)}
+                      className="w-16 p-1 border rounded text-center"
+                      min="0"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="text"
+                      value={plant.location}
+                      onChange={(e) => updatePlant(plant.id, 'location', e.target.value)}
+                      className="w-full p-1 border rounded"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="number"
+                      value={plant.purchasePrice}
+                      onChange={(e) => updatePlant(plant.id, 'purchasePrice', parseFloat(e.target.value) || 0)}
+                      className="w-20 p-1 border rounded text-center"
+                      min="0"
+                      step="0.01"
+                    />
+                  </td>
+                  <td className="border p-2">
+                    <input
+                      type="number"
+                      value={plant.sellPrice}
+                      onChange={(e) => updatePlant(plant.id, 'sellPrice', parseFloat(e.target.value) || 0)}
+                      className="w-20 p-1 border rounded text-center"
+                      min="0"
+                      step="0.01"
+                    />
+                  </td>
+                  <td className="border p-2 text-center">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      profitPerUnit > 0 ? 'bg-green-100 text-green-800' : 
+                      profitPerUnit < 0 ? 'bg-red-100 text-red-800' : 
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      €{profitPerUnit.toFixed(2)}
+                    </span>
+                  </td>
+                  <td className="border p-2">
+                    <select
+                      value={plant.condition}
+                      onChange={(e) => updatePlant(plant.id, 'condition', e.target.value)}
+                      className={`p-1 border rounded text-xs w-full ${
+                        plant.condition === 'excellent' ? 'bg-green-100 text-green-800' :
+                        plant.condition === 'healthy' ? 'bg-blue-100 text-blue-800' :
+                        plant.condition === 'fair' ? 'bg-yellow-100 text-yellow-800' :
+                        plant.condition === 'poor' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      <option value="excellent">Excellent</option>
+                      <option value="healthy">Healthy</option>
+                      <option value="fair">Fair</option>
+                      <option value="poor">Poor</option>
+                      <option value="dying">Dying</option>
+                    </select>
+                  </td>
+                  <td className="border p-2">
+                    <select
+                      value={plant.careLevel}
+                      onChange={(e) => updatePlant(plant.id, 'careLevel', e.target.value)}
+                      className="p-1 border rounded text-xs w-full"
+                    >
+                      <option value="easy">Easy</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="hard">Hard</option>
+                      <option value="expert">Expert</option>
+                    </select>
+                  </td>
+                  <td className="border p-2">
+                    <select
+                      value={plant.lightRequirement}
+                      onChange={(e) => updatePlant(plant.id, 'lightRequirement', e.target.value)}
+                      className="p-1 border rounded text-xs w-full"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </td>
+                  <td className="border p-2 text-center">
+                    <button
+                      onClick={() => removePlant(plant.id)}
+                      className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid md:grid-cols-4 gap-4 mt-6">
+        <div className="p-4 bg-green-100 rounded-lg">
+          <div className="text-sm font-semibold text-green-800">Total Plants</div>
+          <div className="text-2xl font-bold text-green-600">
+            {plants.reduce((sum, plant) => sum + plant.quantity, 0)}
+          </div>
+        </div>
+        <div className="p-4 bg-blue-100 rounded-lg">
+          <div className="text-sm font-semibold text-blue-800">Total Value</div>
+          <div className="text-2xl font-bold text-blue-600">
+            €{plants.reduce((sum, plant) => sum + (plant.quantity * plant.sellPrice), 0).toFixed(2)}
+          </div>
+        </div>
+        <div className="p-4 bg-purple-100 rounded-lg">
+          <div className="text-sm font-semibold text-purple-800">Plant Varieties</div>
+          <div className="text-2xl font-bold text-purple-600">{plants.length}</div>
+        </div>
+        <div className="p-4 bg-orange-100 rounded-lg">
+          <div className="text-sm font-semibold text-orange-800">Avg Profit Margin</div>
+          <div className="text-2xl font-bold text-orange-600">
+            {plants.length > 0 ? 
+              ((plants.reduce((sum, plant) => sum + ((plant.sellPrice - plant.purchasePrice) / plant.sellPrice * 100), 0) / plants.length) || 0).toFixed(1) 
+              : 0}%
+          </div>
+        </div>
       </div>
     </div>
   </div>
