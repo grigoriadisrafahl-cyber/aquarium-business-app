@@ -2152,8 +2152,10 @@ const updatePropagationProject = (id, field, value) => {
         })()}
       </div>
     </div>
+  </div>
 
 )}
+
 
   );
 };
