@@ -1401,6 +1401,7 @@ const updatePropagationProject = (id, field, value) => {
           </div>
         </div>
       )}
+
 {activeTab === 'reports' && (
   <div className="space-y-6">
     {/* Monthly/Quarterly Profit Analysis */}
@@ -1650,6 +1651,7 @@ const updatePropagationProject = (id, field, value) => {
     </div>
   </div>
 )}
+
   {activeTab === 'plants' && (
   <div className="space-y-6">
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -1835,6 +1837,7 @@ const updatePropagationProject = (id, field, value) => {
         </div>
       </div>
     </div>
+
 <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-semibold flex items-center gap-2">
@@ -1931,6 +1934,9 @@ const updatePropagationProject = (id, field, value) => {
               
               {isOverdue && !task.completed && (
                 <div className="mt-2 text-xs text-red-600 font-medium">
+                  ⚠️ Overdue by {Math.floor((new Date() -
+I'll continue with the rest of the code from where I left off:
+
                   ⚠️ Overdue by {Math.floor((new Date() - new Date(task.nextDue)) / (1000 * 60 * 60 * 24))} days
                 </div>
               )}
@@ -1939,6 +1945,7 @@ const updatePropagationProject = (id, field, value) => {
         })}
       </div>
     </div>
+
 <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-semibold flex items-center gap-2">
@@ -2068,6 +2075,7 @@ const updatePropagationProject = (id, field, value) => {
         </table>
       </div>
     </div>
+
 <div className="bg-white rounded-lg shadow-lg p-6">
       <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
         <TrendingUp className="text-cyan-600" />
@@ -2152,10 +2160,10 @@ const updatePropagationProject = (id, field, value) => {
         })()}
       </div>
     </div>
-
+  </div>
 )}
 
-
+    </div>
   );
 };
 
